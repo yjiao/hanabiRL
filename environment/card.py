@@ -3,11 +3,22 @@ from enum import IntEnum
 
 MAX_CARD_VALUE = 5
 MIN_CARD_VALUE = 1
+UNK_CARD_VALUE = 0
 MAX_HINTS = 8
 MAX_BOMBS = 3
 
 
 Card = namedtuple("Card", ["color", "value"])
+
+
+def card_to_int(card):
+    return card.color * (MAX_CARD_VALUE + 1) + card.value
+
+
+def int_to_card(int_):
+    color = int_ // (MAX_CARD_VALUE + 1)
+    value = int_ % (MAX_CARD_VALUE + 1)
+    return Card(color=color, value=value)
 
 
 class Color(IntEnum):
@@ -34,8 +45,16 @@ class Pile(object):
     def __repr__(self):
         rep = f"pile of type {self.type.name} ({self.type}) with {len(self.cards)} cards\n"
         for card in sorted(self.cards):
-            rep += f"    card: {card.color.name: >8}, {card.value: >3}\n"
+            rep += f"    card: {card.color.name: >8}, {card.value: >3} --> {card_to_int(card)}\n"
         return rep
+
+    def to_list(self):
+        max_deck_size = (MAX_CARD_VALUE + 1) * (len(Color))
+        print(f"max_deck_size: {max_deck_size}")
+        output = [0] * max_deck_size
+        for card in self.cards:
+            output[card_to_int(card)] = 1
+        return output
 
     def add_card(self, card):
         self.cards.add(card)
