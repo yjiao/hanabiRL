@@ -3,11 +3,13 @@ from . import card
 
 class Environment(object):
     def __init__(self, num_players):
+        assert num_players > 0, "Number of players must be greater than 0."
         self.num_players = num_players
         self.reset()
 
     def reset(self):
         """Reset environment to start of a game."""
+        self.next_player = 0
         self.players = [card.Pile(card.PileType.PLAYER)] * self.num_players
         self.discard = card.Pile(card.PileType.DISCARD)
         self.deck = card.Pile(card.PileType.DECK)
@@ -27,14 +29,17 @@ class Environment(object):
 
     def _update_state(self):
         """Returns a list of the current state.
+        next_player
         hints
         bombs
         board
-        deck
         discard
         players
         """
         state = []
+        self.feature_idx["next_player"] = len(state)
+        state.append(self.next_player)
+
         self.feature_idx["hints"] = len(state)
         state.append(self.hints)
 
@@ -43,9 +48,6 @@ class Environment(object):
 
         self.feature_idx["bombs"] = len(state)
         state.extend(self.board.to_list())
-
-        self.feature_idx["deck"] = len(state)
-        state.extend(self.deck.to_list())
 
         self.feature_idx["discard"] = len(state)
         state.extend(self.discard.to_list())
