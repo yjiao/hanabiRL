@@ -10,6 +10,17 @@ class TestCards(unittest.TestCase):
                 self.assertEqual(card_.color, color)
                 self.assertEqual(card_.value, val)
 
+    def test_pile_operations(self):
+        pile = card.Pile(card.PileType.DECK)
+        color = card.Color.BLUE
+        value = 5
+        card_ = card.Card(color=color, value=value)
+
+        pile.add_card(card_)
+        self.assertIn(card_, pile.cards)
+        pile.remove_card(card_)
+        self.assertNotIn(card_, pile.cards)
+
 
 if __name__ == "__main__":
     unittest.main()
