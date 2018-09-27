@@ -10,7 +10,7 @@ class Environment(object):
     def reset(self):
         """Reset environment to start of a game."""
         self.next_player = 0
-        self.players = [card.Pile(card.PileType.PLAYER)] * self.num_players
+        self.players = [card.Pile(card.PileType.PLAYER) for i in range(self.num_players)]
         self.discard = card.Pile(card.PileType.DISCARD)
         self.deck = card.Pile(card.PileType.DECK)
         self.board = card.Pile(card.PileType.BOARD)
