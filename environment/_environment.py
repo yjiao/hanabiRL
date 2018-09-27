@@ -1,5 +1,7 @@
 from . import card
 
+CARDS_PER_PLAYER = 4
+
 
 class Environment(object):
     def __init__(self, num_players):
@@ -10,7 +12,10 @@ class Environment(object):
     def reset(self):
         """Reset environment to start of a game."""
         self.next_player = 0
+        self.cards_per_player = CARDS_PER_PLAYER
         self.players = [card.Pile(card.PileType.PLAYER) for i in range(self.num_players)]
+        self.known_colors = [[0]*self.cards_per_player for i in range(self.num_players)]
+        self.known_values = [[0]*self.cards_per_player for i in range(self.num_players)]
         self.discard = card.Pile(card.PileType.DISCARD)
         self.deck = card.Pile(card.PileType.DECK)
         self.board = card.Pile(card.PileType.BOARD)
@@ -19,11 +24,21 @@ class Environment(object):
         self.state = []
         self.feature_idx = {}  # this keeps track of where each feature is
 
-        for i in range(card.MIN_CARD_VALUE, card.MAX_CARD_VALUE + 1):
-            for color in card.Color:
-                if color == card.Color.UNK:
-                    continue
-                self.deck.add_card(card.Card(color=color, value=i))
+        # populate the deck
+        for color in card.Color:
+            for value in range(card.MIN_CARD_VALUE, card.MAX_CARD_VALUE):
+                if value == card.MIN_CARD_VALUE:
+                    for _ in range(3):
+                        self.deck.add_card(card.Card(color=color, value=value))
+                else:
+                    for _ in range(2):
+                        self.deck.add_card(card.Card(color=color, value=value))
+
+        # deal cards to players
+        self.deck.shuffle()
+        for player in self.players:
+            for c in range(self.cards_per_player):
+                player.add_card(self.deck.draw())
 
         self._update_state()
 
@@ -35,6 +50,8 @@ class Environment(object):
         board
         discard
         players
+        known_values
+        known_colors
         """
         state = []
         self.feature_idx["next_player"] = len(state)
@@ -56,6 +73,16 @@ class Environment(object):
         for player in self.players:
             self.feature_idx["players"].append(len(state))
             state.extend(player.to_list())
+
+        self.feature_idx["known_values"] = []
+        for kv in self.known_values:
+            self.feature_idx["known_values"].append(len(state))
+            state.extend(kv)
+
+        self.feature_idx["known_colors"] = []
+        for kc in self.known_colors:
+            self.feature_idx["known_colors"].append(len(state))
+            state.extend(kc)
 
         self.state = state
         return state

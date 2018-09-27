@@ -1,9 +1,9 @@
 from collections import namedtuple
 from enum import IntEnum
+from random import shuffle
 
 MAX_CARD_VALUE = 5
-MIN_CARD_VALUE = 1
-UNK_CARD_VALUE = 0
+MIN_CARD_VALUE = 0
 MAX_HINTS = 8
 MAX_BOMBS = 3
 
@@ -12,22 +12,21 @@ Card = namedtuple("Card", ["color", "value"])
 
 
 def card_to_int(card):
-    return card.color * (MAX_CARD_VALUE + 1) + card.value
+    return card.color * (MAX_CARD_VALUE) + card.value
 
 
 def int_to_card(int_):
-    color = int_ // (MAX_CARD_VALUE + 1)
-    value = int_ % (MAX_CARD_VALUE + 1)
+    color = int_ // (MAX_CARD_VALUE)
+    value = int_ % (MAX_CARD_VALUE)
     return Card(color=color, value=value)
 
 
 class Color(IntEnum):
-    UNK = 0
-    BLUE = 1
-    GREEN = 2
-    RED = 3
-    WHITE = 4
-    YELLOW = 5
+    BLUE = 0
+    GREEN = 1
+    RED = 2
+    WHITE = 3
+    YELLOW = 4
 
 
 class PileType(IntEnum):
@@ -40,7 +39,7 @@ class PileType(IntEnum):
 class Pile(object):
     def __init__(self, pile_type):
         self.type = pile_type
-        self.cards = set()
+        self.cards = []
 
     def __repr__(self):
         rep = f"pile of type {self.type.name} ({self.type}) with {len(self.cards)} cards\n"
@@ -49,17 +48,23 @@ class Pile(object):
         return rep
 
     def to_list(self):
-        max_deck_size = (MAX_CARD_VALUE + 1) * (len(Color))
+        max_deck_size = (MAX_CARD_VALUE) * (len(Color))
         output = [0] * max_deck_size
         for card in self.cards:
             output[card_to_int(card)] = 1
         return output
 
+    def shuffle(self):
+        shuffle(self.cards)
+
     def add_card(self, card):
-        self.cards.add(card)
+        self.cards.append(card)
+
+    def draw(self):
+        assert self.type == PileType.DECK, f"Can only draw from DECK, current PileType is {self.type}"
+        return self.cards.pop()
 
     def remove_card(self, card):
-        if card in self.cards:
-            self.cards.remove(card)
-        else:
-            raise Exception(f"Card {card} is not in deck {self.type}.name.")
+        for i, card_in_pile in enumerate(self.cards):
+            if card_in_pile == card:
+                self.cards.pop(i)
