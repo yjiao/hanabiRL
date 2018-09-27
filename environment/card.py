@@ -50,7 +50,6 @@ class Pile(object):
 
     def to_list(self):
         max_deck_size = (MAX_CARD_VALUE + 1) * (len(Color))
-        print(f"max_deck_size: {max_deck_size}")
         output = [0] * max_deck_size
         for card in self.cards:
             output[card_to_int(card)] = 1
