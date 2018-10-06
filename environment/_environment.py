@@ -13,9 +13,15 @@ class Environment(object):
         """Reset environment to start of a game."""
         self.next_player = 0
         self.cards_per_player = CARDS_PER_PLAYER
-        self.players = [card.Pile(card.PileType.PLAYER) for i in range(self.num_players)]
-        self.known_colors = [[0]*self.cards_per_player for i in range(self.num_players)]
-        self.known_values = [[0]*self.cards_per_player for i in range(self.num_players)]
+        self.players = [
+            card.Pile(card.PileType.PLAYER) for i in range(self.num_players)
+        ]
+        self.known_colors = [
+            [0] * self.cards_per_player for i in range(self.num_players)
+        ]
+        self.known_values = [
+            [0] * self.cards_per_player for i in range(self.num_players)
+        ]
         self.discard = card.Pile(card.PileType.DISCARD)
         self.deck = card.Pile(card.PileType.DECK)
         self.board = card.Pile(card.PileType.BOARD)

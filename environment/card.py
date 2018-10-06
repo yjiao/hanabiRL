@@ -11,14 +11,8 @@ MAX_BOMBS = 3
 Card = namedtuple("Card", ["color", "value"])
 
 
-def card_to_int(card):
+def get_card_index(card):
     return card.color * (MAX_CARD_VALUE) + card.value
-
-
-def int_to_card(int_):
-    color = int_ // (MAX_CARD_VALUE)
-    value = int_ % (MAX_CARD_VALUE)
-    return Card(color=color, value=value)
 
 
 class Color(IntEnum):
@@ -27,6 +21,17 @@ class Color(IntEnum):
     RED = 2
     WHITE = 3
     YELLOW = 4
+
+
+# initialize card array values
+# [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+# [----color----] [----value---]
+CARD_DIMENSION = MAX_CARD_VALUE + len(Color)
+CARD_ARRAYS = [[0] * CARD_DIMENSION for _ in range(MAX_CARD_VALUE * len(Color))]
+for color in Color:
+    for val in range(MIN_CARD_VALUE, MAX_CARD_VALUE):
+        CARD_ARRAYS[color * MAX_CARD_VALUE + val][color] = 1
+        CARD_ARRAYS[color * MAX_CARD_VALUE + val][len(Color) + val] = 1
 
 
 class PileType(IntEnum):
@@ -44,14 +49,13 @@ class Pile(object):
     def __repr__(self):
         rep = f"pile of type {self.type.name} ({self.type}) with {len(self.cards)} cards\n"
         for card in sorted(self.cards):
-            rep += f"    card: {card.color.name: >8}, {card.value: >3} --> {card_to_int(card)}\n"
+            rep += f"    card: {card.color.name: >8}, {card.value: >3} --> {CARD_ARRAYS[get_card_index(card)]}\n"
         return rep
 
     def to_list(self):
-        max_deck_size = (MAX_CARD_VALUE) * (len(Color))
-        output = [0] * max_deck_size
-        for card in self.cards:
-            output[card_to_int(card)] = 1
+        output = [[0] * CARD_DIMENSION for _ in range(len(self.cards))]
+        for i, card in enumerate(self.cards):
+            output[i] = CARD_ARRAYS[get_card_index(card)]
         return output
 
     def shuffle(self):
@@ -61,7 +65,9 @@ class Pile(object):
         self.cards.append(card)
 
     def draw(self):
-        assert self.type == PileType.DECK, f"Can only draw from DECK, current PileType is {self.type}"
+        assert (
+            self.type == PileType.DECK
+        ), f"Can only draw from DECK, current PileType is {self.type}"
         return self.cards.pop()
 
     def remove_card(self, card):
