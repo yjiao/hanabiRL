@@ -72,7 +72,7 @@ class Environment(object):
         self.feature_idx["bombs"] = len(state)
         state.append(self.bombs)
 
-        self.feature_idx["bombs"] = len(state)
+        self.feature_idx["board"] = len(state)
         state.extend(self.board.to_list())
 
         self.feature_idx["discard"] = len(state)
