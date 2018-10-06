@@ -30,7 +30,18 @@ class Environment(object):
         self.state = []
         self.feature_idx = {}  # this keeps track of where each feature is
 
-        # populate the deck
+        self._populate_deck()
+        self.deck.shuffle()
+
+        # deal cards to players
+        for player in self.players:
+            for c in range(self.cards_per_player):
+                player.add_card(self.deck.draw())
+
+        self._update_state()
+
+    def _populate_deck(self):
+        """Fully populate the deck."""
         for color in card.Color:
             for value in range(card.MIN_CARD_VALUE, card.MAX_CARD_VALUE):
                 if value == card.MIN_CARD_VALUE:
@@ -39,14 +50,6 @@ class Environment(object):
                 else:
                     for _ in range(2):
                         self.deck.add_card(card.Card(color=color, value=value))
-
-        # deal cards to players
-        self.deck.shuffle()
-        for player in self.players:
-            for c in range(self.cards_per_player):
-                player.add_card(self.deck.draw())
-
-        self._update_state()
 
     def _update_state(self):
         """Returns a list of the current state.
