@@ -1,4 +1,5 @@
 from . import card
+from . import action
 
 CARDS_PER_PLAYER = 4
 
@@ -50,6 +51,73 @@ class Environment(object):
                 else:
                     for _ in range(2):
                         self.deck.add_card(card.Card(color=color, value=value))
+
+        # deal cards to players
+        self.deck.shuffle()
+        for player in self.players:
+            for c in range(self.cards_per_player):
+                player.add_card(self.deck.draw())
+
+        self._update_state()
+
+    def draw_from_deck(self, player):
+        if not self.deck.empty():
+            top_card = self.deck.draw()
+
+            self.players[player].add_card(top_card)
+            self.known_colors[player].append(0)
+            self.known_values[player].append(0)
+
+            return top_card
+        return None
+
+    def remove_from_hand(self, player, index):
+        removed_card = self.players[player].remove_card(index)
+
+        self.known_colors[player].pop(index)
+        self.known_values[player].pop(index)
+
+        return removed_card
+
+    def next_playable_value(self, color):
+        value = 0
+
+        for c in self.board:
+            if c.color == color:
+                value += 1
+
+        return value
+
+    def increment_hints(self):
+        self.hints = min(self.hints + 1, card.MAX_HINTS)
+
+    def step(self, action):
+        p = self.next_player
+
+        p_pile = self.players[player]
+        p_known_colors = self.known_colors[player]
+        p_known_values = self.known_values[player]
+
+        if action.action_type == ActionType.HINT:
+            pass
+        elif action.action_type == ActionType.PLAY:
+            played_card = self.remove_from_hand(p, action.index)
+
+            if played_card.value == self.next_playable_value(played_card.color):
+                self.board.add_card(played_card)
+                if played_card.value == card.MAX_CARD_VALUE:
+                    self.increment_hints()
+                self.draw_from_deck(p)
+            else:
+                self.discard.add_card(played_card)
+                self.bombs += 1
+                self.draw_from_deck(p)
+        elif action.action_type == ActionType.DISCARD:
+            self.discard.add_card(self.remove_from_hand(p, action.index))
+            self.increment_hints()
+            self.draw_from_deck(p)
+
+        self.next_player = (self.next_player + 1) % self.num_players
 
     def _update_state(self):
         """Returns a list of the current state.

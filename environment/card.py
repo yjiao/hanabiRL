@@ -72,7 +72,11 @@ class Pile(object):
         ), f"Can only draw from DECK, current PileType is {self.type}"
         return self.cards.pop()
 
-    def remove_card(self, card):
-        for i, card_in_pile in enumerate(self.cards):
-            if card_in_pile == card:
-                self.cards.pop(i)
+    def size(self):
+        return len(self.cards)
+
+    def empty(self):
+        return self.size() == 0
+
+    def remove_card(self, index):
+        return self.cards.pop(index)
