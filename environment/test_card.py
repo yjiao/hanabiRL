@@ -29,8 +29,11 @@ class TestCards(unittest.TestCase):
         # representation
         pile.add_card(card1)
         card_list_repr = pile.to_list()
-        self.assertEqual(len(card_list_repr), 2)
-        self.assertEqual(card_list_repr[0], card_list_repr[1])
+        self.assertEqual(len(card_list_repr), 2 * card.CARD_DIMENSION)
+        self.assertEqual(
+            card_list_repr[0 : card.CARD_DIMENSION],
+            card_list_repr[card.CARD_DIMENSION : card.CARD_DIMENSION * 2],
+        )
 
         # remove a card, there's still another one in there
         pile.remove_card(card1)

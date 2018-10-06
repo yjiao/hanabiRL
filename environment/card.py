@@ -53,9 +53,11 @@ class Pile(object):
         return rep
 
     def to_list(self):
-        output = [[0] * CARD_DIMENSION for _ in range(len(self.cards))]
+        output = [0] * (CARD_DIMENSION * len(self.cards))
         for i, card in enumerate(self.cards):
-            output[i] = CARD_ARRAYS[get_card_index(card)]
+            left = i * CARD_DIMENSION
+            right = left + CARD_DIMENSION
+            output[left:right] = CARD_ARRAYS[get_card_index(card)]
         return output
 
     def shuffle(self):
